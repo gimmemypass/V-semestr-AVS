@@ -10,8 +10,8 @@ using namespace std;
 
 int ind = 0;
 atomic<int> atomicInd (0);
-long long size = 1024*1024;
-char* NumTasks = new char[size];
+long long size = 1024*102;
+uint8_t* NumTasks = new uint8_t[size];
 mutex m;
 thread* threads = new thread[32];
 ////////////////////////////////////////// mutex
@@ -24,19 +24,10 @@ thread* threads = new thread[32];
             
             if(i >= size) return;
             NumTasks[i]++;
-            sleep(0.00000001);
+            this_thread::sleep_for(chrono::nanoseconds(10));
         }
     }
 
-    void mutexTraversal(short countThreads){
-        ind = 0;
-        for(int i = 0; i < countThreads; i++){
-            threads[i] = thread(mutexAction);
-        }
-        for(int i = 0; i < countThreads; i++){
-            threads[i].join();
-        }
-        }
 //////////////////////////////////////////// atomic
     void atomicAction(){
         while(true){
@@ -46,34 +37,30 @@ thread* threads = new thread[32];
             if(i >= size) return;
 
             NumTasks[i]++;
-            sleep(0.00000001);
+            this_thread::sleep_for(chrono::nanoseconds(10));
         }
     }
 
-    void atomicTraversal(short countThreads){
+    double traversal(void (*f)(), short countThreads){
+        int start_time, end_time;
+        start_time = clock();
+        ind = 0;
         atomicInd = 0;
         for(int i = 0; i < countThreads; i++){
-            threads[i] = thread(atomicAction);
+            threads[i] = thread(f);
         }
         for(int i = 0; i < countThreads; i++){
             threads[i].join();
         }
-        }
-//////////////////////////////////////////// 
-double time(void (*f)(short), short a){
-    int start_time, end_time;
-    start_time = clock();
-    f(a);
-    end_time = clock();
-    return (end_time - start_time)/1000000.0;
-}
-
+        end_time = clock();
+        return (end_time - start_time)/1000000.0;
+    }
 
 int main(){
-    cout << "4 - " <<time(mutexTraversal, 4) << " c" << '\t' << time(atomicTraversal,4) << '\n';
-    cout << "8 - " <<time(mutexTraversal, 8) << " c" << '\t' << time(atomicTraversal,8) << '\n';
-    cout << "16 - " <<time(mutexTraversal, 16) << " c" << '\t' << time(atomicTraversal,16) << '\n';
-    cout << "32 - " <<time(mutexTraversal, 32) << " c" << '\t' << time(atomicTraversal,32) << '\n';
+    cout << "4 - " <<traversal(mutexAction, 4) << " c" << '\t' << traversal(atomicAction,4) << '\n';
+    cout << "8 - " <<traversal(mutexAction, 8) << " c" << '\t' << traversal(atomicAction,8) << '\n';
+    cout << "16 - " <<traversal(mutexAction, 16) << " c" << '\t' << traversal(atomicAction,16) << '\n';
+    cout << "32 - " <<traversal(mutexAction, 32) << " c" << '\t' << traversal(atomicAction,32) << '\n';
     for(int i = 0; i < 1024; i++)
         cout << int(NumTasks[i]);
     cout << '\n';
