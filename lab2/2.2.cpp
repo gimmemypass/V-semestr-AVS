@@ -16,11 +16,11 @@ mutex m;
 mutex mConsum;
 condition_variable cv;
 condition_variable cvConsum;
-thread consumers[6];
-thread producers[6];
+thread consumers[4];
+thread producers[4];
 ll TaskNum = 4*1024;
 double* prodTime = new double[4]; 
-int workingProducers = 1;
+atomic<int> workingProducers (1);
 
 class Queue{
 protected:
@@ -135,11 +135,12 @@ void instancing(Queue* q, int countConsumer, int countProducer){
         consumers[i] = thread(queueConsumerAction,q);
     }
 
-    workingProducers = 0;
     for(int i = 0; i < countProducer; i++){
         producers[i] = thread(queueProducerAction,q, &prodTime[i]);
         workingProducers++;
     }
+
+    workingProducers--; //decrease because it was equal 1 at the beginning
 
     // thread t(check, q);
     for(int i = 0; i < countConsumer; i++){
@@ -153,8 +154,8 @@ void instancing(Queue* q, int countConsumer, int countProducer){
 
 int main(){
     Queue* queue = new FixQueue();
-    int prod = 6;
-    int consum = 6;
+    int prod = 4;
+    int consum = 4;
     instancing(queue, prod,consum);     
     double alltime = 0;
     for(int i = 0; i < prod; i++){
