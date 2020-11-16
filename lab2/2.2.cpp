@@ -20,7 +20,7 @@ thread consumers[6];
 thread producers[6];
 ll TaskNum = 4*1024;
 double* prodTime = new double[4]; 
-int workingProducers = 0;
+int workingProducers = 1;
 
 class Queue{
 protected:
@@ -135,6 +135,7 @@ void instancing(Queue* q, int countConsumer, int countProducer){
         consumers[i] = thread(queueConsumerAction,q);
     }
 
+    workingProducers = 0;
     for(int i = 0; i < countProducer; i++){
         producers[i] = thread(queueProducerAction,q, &prodTime[i]);
         workingProducers++;
