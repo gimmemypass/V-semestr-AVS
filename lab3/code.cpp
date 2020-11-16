@@ -14,11 +14,10 @@ void init(int** matrix, int* vector, int row, int col){
 }
 int* mulOMP(int** matrix, int* vector, int row, int col){
     int* result = new int[row];
-    #pragma omp parallel 
+    #pragma omp parallel
     {
-        int i;
         #pragma omp for 
-        for(i =0; i < row; i++){
+        for(int i =0; i < row; i++){
             result[i] = 0;
             for(int j = 0; j < col; j++ ){
                 result[i] += vector[j] * matrix[i][j];
@@ -41,7 +40,7 @@ int* mul(int** matrix, int* vector, int row, int col){
 }
 int main(){
     srand(time(0));
-    int row = 10000;
+    int row = 100000;
     int col = 10000;
     int** matrix = new int*[row];
     int* vector = new int[col];

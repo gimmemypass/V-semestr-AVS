@@ -16,9 +16,9 @@ mutex m;
 mutex mConsum;
 condition_variable cv;
 condition_variable cvConsum;
-thread consumers[3];
-thread producers[3];
-ll TaskNum = 4*1024*10;
+thread consumers[6];
+thread producers[6];
+ll TaskNum = 4*1024;
 double* prodTime = new double[4]; 
 int workingProducers = 0;
 
@@ -129,13 +129,17 @@ void check(Queue* q){
 }
 
 void instancing(Queue* q, int countConsumer, int countProducer){
+
+
+    for(int i = 0; i < countConsumer; i++){
+        consumers[i] = thread(queueConsumerAction,q);
+    }
+
     for(int i = 0; i < countProducer; i++){
         producers[i] = thread(queueProducerAction,q, &prodTime[i]);
         workingProducers++;
     }
-    for(int i = 0; i < countConsumer; i++){
-        consumers[i] = thread(queueConsumerAction,q);
-    }
+
     // thread t(check, q);
     for(int i = 0; i < countConsumer; i++){
         consumers[i].join();
@@ -148,15 +152,13 @@ void instancing(Queue* q, int countConsumer, int countProducer){
 
 int main(){
     Queue* queue = new FixQueue();
-    int prod = 2;
-    int consum = 2;
+    int prod = 6;
+    int consum = 6;
     instancing(queue, prod,consum);     
     double alltime = 0;
     for(int i = 0; i < prod; i++){
         alltime += prodTime[i];
     }
-    cout << alltime << '\t' << (double)prod / TaskNum << '\n';
+    cout << alltime << '\n';
     return 0;
 }
-
-/////ProducerNum / TaskNum 
